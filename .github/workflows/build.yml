@@ -5,48 +5,68 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
-
+    runs-on: ubuntu-latest
     steps:
-    - name: Install dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y bc bison build-essential curl flex git gnupg libncurses5-dev libssl-dev \
-          python-is-python3 rsync unzip xz-utils zip zlib1g-dev ccache
+      - name: Checkout source
+        uses: actions/checkout@v4
 
-    - name: Set up Repo
-      run: |
-        mkdir ~/bin
-        curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
-        chmod a+x ~/bin/repo
-        echo "PATH=$HOME/bin:$PATH" >> $GITHUB_ENV
+      - name: Free up space on runner ✅
+        run: |
+          echo "Before cleanup:"
+          df -h
+          sudo rm -rf /usr/share/dotnet \
+                      /opt/ghc \
+                      /usr/local/share/boost \
+                      /usr/lib/jvm \
+                      /opt/hostedtoolcache \
+                      /opt/az \
+                      /opt/microsoft \
+                      /opt/pipx \
+                      /usr/local/lib/android
+          sudo apt clean
+          echo "After cleanup:"
+          df -h
 
-    - name: Initialize manifest
-      run: |
-        mkdir kernel && cd kernel
-        repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b oneplus/sm8750 -m oneplus_13t.xml
-        repo sync -j$(nproc)
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y bc bison build-essential curl flex git gnupg \
+            libncurses5-dev libssl-dev python-is-python3 rsync unzip xz-utils \
+            zip zlib1g-dev ccache
 
-    - name: Clone Clang
-      run: |
-        git clone --depth=1 https://github.com/kdrag0n/proton-clang.git clang
+      - name: Set up repo
+        run: |
+          mkdir -p ~/bin
+          curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+          chmod a+x ~/bin/repo
+          echo "PATH=$HOME/bin:$PATH" >> $GITHUB_ENV
 
-    - name: Build Kernel
-      run: |
-        cd kernel
-        export ARCH=arm64
-        export SUBARCH=arm64
-        export KBUILD_BUILD_USER=github
-        export KBUILD_BUILD_HOST=actions
-        export PATH=$GITHUB_WORKSPACE/clang/bin:$PATH
+      - name: Initialize manifest
+        run: |
+          mkdir kernel && cd kernel
+          repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b oneplus/sm8750 -m oneplus_13t.xml
+          repo sync -j$(nproc)
 
-        make O=out oneplus_sm8750_defconfig
-        make -j$(nproc --all) O=out \
-          CROSS_COMPILE=aarch64-linux-gnu- \
-          CC=clang
+      - name: Clone Clang
+        run: |
+          git clone --depth=1 https://github.com/kdrag0n/proton-clang.git clang
 
-    - name: Upload Image
-      uses: actions/upload-artifact@v4
-      with:
-        name: kernel
-        path: kernel/out/arch/arm64/boot/Image.gz-dtb
+      - name: Build Kernel
+        run: |
+          cd kernel
+          export ARCH=arm64
+          export SUBARCH=arm64
+          export KBUILD_BUILD_USER=github
+          export KBUILD_BUILD_HOST=actions
+          export PATH=$GITHUB_WORKSPACE/clang/bin:$PATH
+
+          make O=out oneplus_sm8750_defconfig
+          make -j$(nproc --all) O=out \
+            CROSS_COMPILE=aarch64-linux-gnu- \
+            CC=clang
+
+      - name: Upload Image
+        uses: actions/upload-artifact@v4
+        with:
+          name: kernel
+          path: kernel/out/arch/arm64/boot/Image.gz-dtb
