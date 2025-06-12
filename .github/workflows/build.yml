@@ -19,7 +19,7 @@ jobs:
         mkdir ~/bin
         curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
         chmod a+x ~/bin/repo
-        echo 'export PATH=~/bin:$PATH' >> $GITHUB_ENV
+        echo "PATH=$HOME/bin:$PATH" >> $GITHUB_ENV
 
     - name: Initialize manifest
       run: |
