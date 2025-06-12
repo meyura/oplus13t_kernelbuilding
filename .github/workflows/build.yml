@@ -52,29 +52,29 @@ jobs:
         run: |
           git clone --depth=1 https://github.com/kdrag0n/proton-clang.git clang
 
-      - name: Build Kernel
+      - name: Build Kernel with Bazel
         run: |
           cd kernel
-          export ARCH=arm64
-          export SUBARCH=arm64
-          export KBUILD_BUILD_USER=github
-          export KBUILD_BUILD_HOST=actions
-          export PATH=$GITHUB_WORKSPACE/clang/bin:$PATH
+          sudo apt install -y python3-pip
+          pip install -r kernel_platform/requirements.txt || true
+          chmod +x kernel_platform/build_with_bazel.py
 
-          make O=out defconfig
-          make -j$(nproc --all) O=out \
-            CROSS_COMPILE=aarch64-linux-gnu- \
-            CC=clang
-          make -j$(nproc) O=out modules
+          # 设置环境变量（与官方脚本一致）
+          export BUILD_CONFIG=kernel_platform/msm-kernel/build.config.oneplus_sm8750
+
+          # 执行构建（Image + 模块）
+          python3 kernel_platform/build_with_bazel.py
+
 
       - name: Upload Image
         uses: actions/upload-artifact@v4
         with:
           name: kernel
-          path: kernel/out/arch/arm64/boot/Image.gz-dtb
+          path: kernel/out/android_kernel_oneplus_sm8750/dist/Image.gz-dtb
 
-      - name: Upload Kernel Modules (system_dlkm)
+      - name: Upload Kernel Modules
         uses: actions/upload-artifact@v4
         with:
           name: kernel-modules
-          path: kernel/out/lib/modules
+          path: kernel/out/android_kernel_oneplus_sm8750/dist/modules
+
