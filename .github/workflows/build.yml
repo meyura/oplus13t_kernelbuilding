@@ -48,10 +48,6 @@ jobs:
           repo sync -j4
           repo forall -c 'git gc --auto'
 
-      - name: Clone Clang
-        run: |
-          git clone --depth=1 https://github.com/kdrag0n/proton-clang.git clang
-
       - name: Build Kernel with Bazel
         run: |
           cd kernel
