@@ -51,26 +51,20 @@ jobs:
       - name: Build Kernel with Bazel
         run: |
           cd kernel
-          sudo apt install -y python3-pip
-          pip install -r kernel_platform/requirements.txt || true
           chmod +x kernel_platform/build_with_bazel.py
-
-          # 设置环境变量（与官方脚本一致）
           export BUILD_CONFIG=kernel_platform/msm-kernel/build.config.oneplus_sm8750
+          python3 kernel_platform/build_with_bazel.py --target Image.lz4-dtb --target modules
 
-          # 执行构建（Image + 模块）
-          python3 kernel_platform/build_with_bazel.py
-
-
-      - name: Upload Image
+      - name: Upload Kernel Image
         uses: actions/upload-artifact@v4
         with:
           name: kernel
-          path: kernel/out/android_kernel_oneplus_sm8750/dist/Image.gz-dtb
+          path: kernel/out/android_kernel_oneplus_sm8750/dist/Image.lz4-dtb
 
       - name: Upload Kernel Modules
         uses: actions/upload-artifact@v4
         with:
           name: kernel-modules
           path: kernel/out/android_kernel_oneplus_sm8750/dist/modules
+
 
