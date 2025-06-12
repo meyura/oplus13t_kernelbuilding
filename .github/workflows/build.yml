@@ -44,8 +44,8 @@ jobs:
       - name: Initialize manifest
         run: |
           mkdir kernel && cd kernel
-          repo init -u https://github.com/OnePlusOSS/kernel_manifest.git -b oneplus/sm8750 -m oneplus_13t.xml
-          repo sync --depth=1 -j4
+          repo init --depth=1 -u https://github.com/OnePlusOSS/kernel_manifest.git -b oneplus/sm8750 -m oneplus_13t.xml
+          repo sync -j4
           repo forall -c 'git gc --auto'
 
       - name: Clone Clang
