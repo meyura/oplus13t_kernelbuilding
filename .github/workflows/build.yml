@@ -41,12 +41,6 @@ jobs:
           echo "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8" | \
             sudo tee /etc/apt/sources.list.d/bazel.list
           sudo apt update && sudo apt install -y bazel
-
-      - name: Enable ccache
-        run: |
-          echo "USE_CCACHE=1" >> $GITHUB_ENV
-          export USE_CCACHE=1
-          ccache -M 10G
           
       - name: Set up repo
         run: |
