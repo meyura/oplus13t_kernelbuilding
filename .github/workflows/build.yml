@@ -61,13 +61,20 @@ jobs:
           export KBUILD_BUILD_HOST=actions
           export PATH=$GITHUB_WORKSPACE/clang/bin:$PATH
 
-          make O=out oneplus_sm8750_defconfig
+          make O=out defconfig
           make -j$(nproc --all) O=out \
             CROSS_COMPILE=aarch64-linux-gnu- \
             CC=clang
+          make -j$(nproc) O=out modules
 
       - name: Upload Image
         uses: actions/upload-artifact@v4
         with:
           name: kernel
           path: kernel/out/arch/arm64/boot/Image.gz-dtb
+
+      - name: Upload Kernel Modules (system_dlkm)
+        uses: actions/upload-artifact@v4
+        with:
+          name: kernel-modules
+          path: kernel/out/lib/modules
