@@ -32,8 +32,22 @@ jobs:
           sudo apt update
           sudo apt install -y bc bison build-essential curl flex git gnupg \
             libncurses5-dev libssl-dev python-is-python3 rsync unzip xz-utils \
-            zip zlib1g-dev ccache
+            zip zlib1g-dev ccache apt-transport-https
 
+      - name: Install Bazel
+        run: |
+          curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor > bazel.gpg
+          sudo mv bazel.gpg /etc/apt/trusted.gpg.d/
+          echo "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8" | \
+            sudo tee /etc/apt/sources.list.d/bazel.list
+          sudo apt update && sudo apt install -y bazel
+
+      - name: Enable ccache
+        run: |
+          echo "USE_CCACHE=1" >> $GITHUB_ENV
+          export USE_CCACHE=1
+          ccache -M 10G
+          
       - name: Set up repo
         run: |
           mkdir -p ~/bin
@@ -52,8 +66,7 @@ jobs:
         run: |
           cd kernel
           chmod +x kernel_platform/build_with_bazel.py
-          export BUILD_CONFIG=kernel_platform/msm-kernel/build.config.oneplus_sm8750
-          python3 kernel_platform/build_with_bazel.py --target Image.lz4-dtb --target modules
+          python3 kernel_platform/build_with_bazel.py -t sun gki
 
       - name: Upload Kernel Image
         uses: actions/upload-artifact@v4
