@@ -62,5 +62,5 @@ jobs:
         with:
           name: kernel-dist
           path: |
-            kernel/kernel_platform/out/msm-kernel-sm8750-perf/dist/
+            kernel/kernel_platform/out/msm-kernel-sun-perf/dist/
 
