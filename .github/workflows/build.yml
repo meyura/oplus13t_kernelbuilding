@@ -45,24 +45,22 @@ jobs:
         run: |
           mkdir kernel && cd kernel
           repo init --depth=1 -u https://github.com/OnePlusOSS/kernel_manifest.git -b oneplus/sm8750 -m oneplus_13t.xml
-          repo sync -j4
+          repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
           repo forall -c 'git gc --auto'
 
-      - name: Build Kernel with Bazel
+      - name: Build Kernel
         run: |
           cd kernel
-          ./kernel_platform/oplus/build/oplus_build_kernel.sh sun perf
+          LTO=thin SYSTEM_DLKM_RE_SIGN=1 BUILD_SYSTEM_DLKM=1 ./kernel_platform/oplus/build/oplus_build_kernel.sh sun perf
 
-      - name: Upload Kernel Image
+      - name: Show dist directory structure
+        run: |
+          tree -L 3 kernel/kernel_platform/out/
+
+      - name: Upload full dist directory
         uses: actions/upload-artifact@v4
         with:
-          name: kernel
-          path: kernel/out/android_kernel_oneplus_sm8750/dist/Image.lz4-dtb
-
-      - name: Upload Kernel Modules
-        uses: actions/upload-artifact@v4
-        with:
-          name: kernel-modules
-          path: kernel/out/android_kernel_oneplus_sm8750/dist/modules
-
+          name: kernel-dist
+          path: |
+            kernel/kernel_platform/out/msm-kernel-sm8750-perf/dist/
 
