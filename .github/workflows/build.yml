@@ -45,8 +45,9 @@ jobs:
           repo init --depth=1 -u https://github.com/OnePlusOSS/kernel_manifest.git -b oneplus/sm8750 -m oneplus_13t.xml
           repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
           repo forall -c 'git gc --auto'
-          # rm kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports!"
-          # rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
+          # 修复wifi、蓝牙
+          rm kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports!"
+          rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
 
       - name: Build Kernel
         run: |
@@ -64,6 +65,7 @@ jobs:
           rm -rf ./AnyKernel3/push.sh
           cp kernel/kernel_platform/out/msm-kernel-sun-perf/dist/Image AnyKernel3/Image
           cp kernel/kernel_platform/out/msm-kernel-sun-perf/dist/system_dlkm.erofs.img ./system_dlkm.erofs.img
+          cp kernel/kernel_platform/out/msm-kernel-sun-perf/dist/dtbo.img ./dtbo.img
 
       - name: Upload AnyKernel3
         uses: actions/upload-artifact@v4
@@ -71,10 +73,15 @@ jobs:
           name: Ak3_OnePlus13T_Kernel
           path: ./AnyKernel3/*
 
-      - name: Upload system_dlkm.erofs.img separately
+      - name: Upload system_dlkm.erofs.img
         uses: actions/upload-artifact@v4
         with:
           name: system_dlkm_erofs_img
           path: system_dlkm.erofs.img
 
+      - name: Upload dtbo.img
+        uses: actions/upload-artifact@v4
+        with:
+          name: dtbo_img
+          path: dtbo.img
 
