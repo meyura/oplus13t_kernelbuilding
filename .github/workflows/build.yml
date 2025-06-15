@@ -125,6 +125,14 @@ jobs:
           # Remove check_defconfig
           sed -i 's/check_defconfig//' ./common/build.config.gki
 
+      - name: Add sched_ext
+        run: |
+         cd kernel/kernel_platform/
+         git clone https://github.com/HanKuCha/sched_ext.git
+         cp -r ./sched_ext/* ./common/kernel/sched
+         rm -rf ./sched_ext/.git
+         cd common/kernel/sched
+      
       - name: Build Kernel
         run: |
           cd kernel
@@ -149,16 +157,3 @@ jobs:
         with:
           name: Ak3_OnePlus13T_Kernel
           path: ./AnyKernel3/*
-
-      - name: Upload system_dlkm.erofs.img
-        uses: actions/upload-artifact@v4
-        with:
-          name: system_dlkm_erofs_img
-          path: system_dlkm.erofs.img
-
-      - name: Upload dtbo.img
-        uses: actions/upload-artifact@v4
-        with:
-          name: dtbo_img
-          path: dtbo.img
-
