@@ -21,6 +21,23 @@ jobs:
           remove-haskell: 'true'
           remove-codeql: 'true'
           
+      - name: Free up space on runner
+        run: |
+          echo "Before cleanup:"
+          df -h
+          sudo rm -rf /usr/share/dotnet \
+                      /opt/ghc \
+                      /usr/local/share/boost \
+                      /usr/lib/jvm \
+                      /opt/hostedtoolcache \
+                      /opt/az \
+                      /opt/microsoft \
+                      /opt/pipx \
+                      /usr/local/lib/android
+          sudo apt clean
+          echo "After cleanup:"
+          df -h
+      
       - name: Install dependencies
         run: |
           sudo apt update && sudo apt upgrade -y
