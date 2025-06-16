@@ -133,7 +133,7 @@ jobs:
 
       - name: Show dist directory structure
         run: |
-          tree -L 3 kernel/kernel_platform/out/
+          tree kernel/kernel_platform/out/
 
       - name: Clone AnyKernel3 and prepare files
         run: |
