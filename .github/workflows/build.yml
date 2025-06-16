@@ -124,23 +124,6 @@ jobs:
 
           # Remove check_defconfig
           sed -i 's/check_defconfig//' ./common/build.config.gki
-
-      - name: Apply Convert HMBIRD_OGKI to HMBIRD_GKI
-        run: |
-            cd kernel/kernel_platform/common
-            sed -i '1iobj-y += hmbird_patch.o' drivers/Makefile
-            wget https://github.com/Numbersf/Action-Build/raw/SukiSU-Ultra/patches/hmbird_patch.patch
-            echo "正在打OGKI转换GKI补丁"
-            patch -p1 -F 3 < hmbird_patch.patch
-            echo "OGKI转换GKI_patch完成"
-            
-      - name: Add sched_ext
-        run: |
-         cd kernel/kernel_platform/
-         git clone https://github.com/HanKuCha/sched_ext.git
-         cp -r ./sched_ext/* ./common/kernel/sched
-         rm -rf ./sched_ext/.git
-         cd common/kernel/sched
       
       - name: Build Kernel
         run: |
@@ -158,8 +141,6 @@ jobs:
           rm -rf ./AnyKernel3/.git
           rm -rf ./AnyKernel3/push.sh
           cp kernel/kernel_platform/out/msm-kernel-sun-perf/dist/Image AnyKernel3/Image
-          cp kernel/kernel_platform/out/msm-kernel-sun-perf/dist/system_dlkm.erofs.img ./system_dlkm.erofs.img
-          cp kernel/kernel_platform/out/msm-kernel-sun-perf/dist/dtbo.img ./dtbo.img
 
       - name: Upload AnyKernel3
         uses: actions/upload-artifact@v4
