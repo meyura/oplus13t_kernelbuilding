@@ -128,7 +128,7 @@ jobs:
       - name: Build Kernel
         run: |
           cd kernel
-          LTO=thin SYSTEM_DLKM_RE_SIGN=0 BUILD_SYSTEM_DLKM=0 \
+          LTO=thin SYSTEM_DLKM_RE_SIGN=0 BUILD_SYSTEM_DLKM=0 EXTRA_KBUILD_ARGS="KCFLAGS+=-O2" \
           ./kernel_platform/oplus/build/oplus_build_kernel.sh sun perf
 
       - name: Show dist directory structure
