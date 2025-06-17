@@ -126,7 +126,6 @@ jobs:
           sed -i 's/check_defconfig//' ./common/build.config.gki
       
       - name: Enable lto=thin For FAST
-        if: ${{ (needs.get-config.outputs.KERNEL_VERSION == '5.10' || needs.get-config.outputs.KERNEL_VERSION == '5.15') && github.event.inputs.FAST_BUILD == 'true' }}
         run: |
           cd kernel/kernel_platform
 
