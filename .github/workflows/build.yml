@@ -152,9 +152,23 @@ jobs:
           rm -rf ./AnyKernel3/push.sh
           # cp kernel/kernel_platform/out/msm-kernel-sun-perf/dist/Image AnyKernel3/Image
           cp kernel/kernel_platform/common/out/arch/arm64/boot/Image ./AnyKernel3/
+          find kernel/kernel_platform/common/out -type f -name "auto.conf" -exec cp {} AnyKernel3/ \;
+          find kernel/kernel_platform/common/out -type f -name "auto.conf.cmd" -exec cp {} AnyKernel3/ \;
+          find kernel/kernel_platform/common/out -type f -name "Makefile" -exec cp {} AnyKernel3/ \;
+          find kernel/kernel_platform/common/out -type f -name "compile.h" -exec cp {} AnyKernel3/ \;
           
       - name: Upload AnyKernel3
         uses: actions/upload-artifact@v4
         with:
           name: Ak3_OnePlus13T_Kernel
           path: ./AnyKernel3/*
+
+      - name: Upload vmlinux Separately
+        run: |
+          find kernel/kernel_platform/common/out -type f -name "vmlinux" -exec cp {} ./ \;
+
+      - name: Upload vmlinux
+        uses: actions/upload-artifact@v4
+        with:
+          name: vmlinux
+          path: ./vmlinux
