@@ -138,7 +138,7 @@ jobs:
             PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole \
             LD=ld.lld HOSTLD=ld.lld KCFLAGS+=-O2"
           make -j$(nproc --all) O=out V=1 $MAKE_ARGS gki_defconfig
-          make -j$(nproc --all) O=out V=1 $MAKE_ARGS
+          make -j$(nproc --all) O=out V=1 $MAKE_ARGS Image
 
       - name: Show dist directory structure
         run: |
