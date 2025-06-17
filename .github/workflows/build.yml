@@ -133,7 +133,7 @@ jobs:
           export PATH="$GITHUB_WORKSPACE/kernel/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
           sudo apt install -y libelf-dev
           cd kernel/kernel_platform/common
-          MAKE_ARGS="LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang \
+          MAKE_ARGS="LLVM=1 LTO=thin ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang \
             RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc \
             PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole \
             LD=ld.lld HOSTLD=ld.lld KCFLAGS+=-O2"
