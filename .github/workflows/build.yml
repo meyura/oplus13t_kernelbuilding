@@ -125,6 +125,26 @@ jobs:
           # Remove check_defconfig
           sed -i 's/check_defconfig//' ./common/build.config.gki
       
+      - name: Enable lto=thin For FAST
+        if: ${{ (needs.get-config.outputs.KERNEL_VERSION == '5.10' || needs.get-config.outputs.KERNEL_VERSION == '5.15') && github.event.inputs.FAST_BUILD == 'true' }}
+        run: |
+          cd kernel/kernel_platform
+
+          DEFCONFIG=./common/arch/arm64/configs/gki_defconfig
+
+          # 开启 CONFIG_LTO
+          sed -i 's/^CONFIG_LTO_NONE=y/CONFIG_LTO=y/' "$DEFCONFIG"
+
+          # 替换 FULL/NONE 为 THIN，防止冲突
+          sed -i 's/^CONFIG_LTO_CLANG_FULL=y/CONFIG_LTO_CLANG_THIN=y/' "$DEFCONFIG"
+          sed -i 's/^CONFIG_LTO_CLANG_NONE=y/CONFIG_LTO_CLANG_THIN=y/' "$DEFCONFIG"
+
+          # 添加 THIN（若未设置）
+          grep -q '^CONFIG_LTO_CLANG_THIN=y' "$DEFCONFIG" || echo 'CONFIG_LTO_CLANG_THIN=y' >> "$DEFCONFIG"
+          grep -q '^CONFIG_LTO_CLANG=y' "$DEFCONFIG" || echo 'CONFIG_LTO_CLANG=y' >> "$DEFCONFIG"
+          grep -q '^CONFIG_LTO=y' "$DEFCONFIG" || echo 'CONFIG_LTO=y' >> "$DEFCONFIG"
+
+      
       - name: Build Kernel
         run: |
           # cd kernel
