@@ -130,7 +130,7 @@ jobs:
           # cd kernel
           # LTO=thin SYSTEM_DLKM_RE_SIGN=0 BUILD_SYSTEM_DLKM=0 \
           # ./kernel_platform/oplus/build/oplus_build_kernel.sh sun perf
-          export PATH="$GITHUB_WORKSPACE/kernel_workspace/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
+          export PATH="$GITHUB_WORKSPACE/kernel/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
           sudo apt install -y libelf-dev
           cd kernel/kernel_platform/common
           MAKE_ARGS="LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang \
