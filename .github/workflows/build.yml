@@ -128,7 +128,7 @@ jobs:
       - name: Build Kernel
         run: |
           cd kernel
-          LTO=thin SYSTEM_DLKM_RE_SIGN=0 BUILD_SYSTEM_DLKM=0 EXTRA_KBUILD_ARGS="KCFLAGS+=-O2" \
+          LTO=thin SYSTEM_DLKM_RE_SIGN=0 BUILD_SYSTEM_DLKM=0 \
           ./kernel_platform/oplus/build/oplus_build_kernel.sh sun perf
 
       - name: Show dist directory structure
@@ -141,14 +141,7 @@ jobs:
           rm -rf ./AnyKernel3/.git
           rm -rf ./AnyKernel3/push.sh
           cp kernel/kernel_platform/out/msm-kernel-sun-perf/dist/Image AnyKernel3/Image
-          find kernel/kernel_platform/out -type f -name "auto.conf" -exec cp {} AnyKernel3/ \;
-          find kernel/kernel_platform/out -type f -name "auto.conf.cmd" -exec cp {} AnyKernel3/ \;
-          find kernel/kernel_platform/out -type f -name "vmlinux" -exec cp {} AnyKernel3/ \;
-          find kernel/kernel_platform/out -type f -name "vmlinux.symvers" -exec cp {} AnyKernel3/ \;
-          find kernel/kernel_platform/out -type f -name "Makefile" -exec cp {} AnyKernel3/ \;
-          find kernel/kernel_platform/out -type f -name "CC_OPTIMIZE_FOR_PERFORMANCE" -exec cp {} AnyKernel3/ \;
-          find kernel/kernel_platform/out -type f -name "compile.h" -exec cp {} AnyKernel3/ \;
-
+          
       - name: Upload AnyKernel3
         uses: actions/upload-artifact@v4
         with:
