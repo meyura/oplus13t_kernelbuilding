@@ -1,0 +1,96 @@
+name: Build OnePlus 13T Kernel quick
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 8192
+          temp-reserve-mb: 2048
+          swap-size-mb: 8192
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+          
+      - name: Free up space on runner
+        run: |
+          echo "Before cleanup:"
+          df -h
+          sudo rm -rf /usr/share/dotnet \
+                      /opt/ghc \
+                      /usr/local/share/boost \
+                      /usr/lib/jvm \
+                      /opt/hostedtoolcache \
+                      /opt/az \
+                      /opt/microsoft \
+                      /opt/pipx \
+                      /usr/local/lib/android
+          sudo apt clean
+          echo "After cleanup:"
+          df -h
+      
+      - name: Install dependencies
+        run: |
+          sudo apt update && sudo apt upgrade -y
+          sudo apt install -y python3 git curl ccache
+          
+      - name: Set up repo
+        run: |
+          mkdir -p ~/bin
+          curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+          chmod a+x ~/bin/repo
+          echo "PATH=$HOME/bin:$PATH" >> $GITHUB_ENV
+
+      - name: Initialize manifest
+        run: |
+          mkdir kernel && cd kernel
+          repo init --depth=1 -u https://github.com/OnePlusOSS/kernel_manifest.git -b oneplus/sm8750 -m oneplus_13t.xml
+          repo sync -c -j$(nproc --all) --no-tags --no-clone-bundle --force-sync
+          repo forall -c 'git gc --auto'
+          # 修复wifi、蓝牙
+          rm kernel_platform/common/android/abi_gki_protected_exports_* || echo "No protected exports!"
+          rm kernel_platform/msm-kernel/android/abi_gki_protected_exports_* || echo "No protected exports!"
+      
+      - name: Build Kernel
+        run: |
+          export PATH="$GITHUB_WORKSPACE/kernel/kernel_platform/prebuilts/clang/host/linux-x86/clang-r510928/bin:$PATH"
+          sudo apt install -y libelf-dev
+          cd kernel/kernel_platform/msm-kernel
+          MAKE_ARGS="LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC=clang \
+            RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc \
+            PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole \
+            LD=ld.lld HOSTLD=ld.lld KCFLAGS+=-O2"
+          make -j$(nproc --all) O=out $MAKE_ARGS defconfig
+          make -j$(nproc --all) O=out $MAKE_ARGS Image
+
+      - name: Show dist directory structure
+        run: |
+          # tree kernel/kernel_platform/out/
+          tree kernel/kernel_platform/msm-kernel/out/
+
+      - name: Clone AnyKernel3 and prepare files
+        run: |
+          git clone https://github.com/Kernel-SU/AnyKernel3.git --depth=1
+          rm -rf ./AnyKernel3/.git
+          rm -rf ./AnyKernel3/push.sh
+          # cp kernel/kernel_platform/out/msm-kernel-sun-perf/dist/Image AnyKernel3/Image
+          cp kernel/kernel_platform/msm-kernel/out/arch/arm64/boot/Image ./AnyKernel3/
+          find kernel/kernel_platform/msm-kernel/out -type f -name "auto.conf" -exec cp {} AnyKernel3/ \;
+          find kernel/kernel_platform/msm-kernel/out -type f -name "auto.conf.cmd" -exec cp {} AnyKernel3/ \;
+          find kernel/kernel_platform/msm-kernel/out -type f -name "Makefile" -exec cp {} AnyKernel3/ \;
+          find kernel/kernel_platform/msm-kernel/out -type f -name "compile.h" -exec cp {} AnyKernel3/ \;
+          
+      - name: Upload AnyKernel3
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ak3_OnePlus13T_Kernel
+          path: ./AnyKernel3/*
