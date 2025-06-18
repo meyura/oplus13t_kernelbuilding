@@ -124,7 +124,7 @@ jobs:
           echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> "$CONFIG_FILE"
 
           # Remove check_defconfig
-          # sed -i 's/check_defconfig//' ./common/build.config.gki
+          sed -i 's/check_defconfig//' ./common/build.config.gki
       
       - name: Enable lto=thin For FAST
         run: |
