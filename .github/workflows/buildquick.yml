@@ -70,11 +70,7 @@ jobs:
             PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole \
             LD=ld.lld HOSTLD=ld.lld KCFLAGS+=-O2"
           make -j$(nproc --all) O=out $MAKE_ARGS defconfig
-          echo "defconfig built."
-          make -j$(nproc --all) O=out $MAKE_ARGS modules
-          echo "modules built."
           make -j$(nproc --all) O=out $MAKE_ARGS Image
-          echo "Image built."
 
       - name: Show dist directory structure
         run: |
