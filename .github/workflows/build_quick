@@ -1,4 +1,4 @@
-name: Build OnePlus 13T Kernel
+name: Build OnePlus 13T Kernel quick
 
 on:
   workflow_dispatch:
