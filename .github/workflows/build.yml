@@ -93,7 +93,8 @@ jobs:
       - name: Add Configuration Settings
         run: |
           cd kernel/kernel_platform
-          CONFIG_FILE=./common/arch/arm64/configs/gki_defconfig
+          # CONFIG_FILE=./common/arch/arm64/configs/gki_defconfig
+          CONFIG_FILE=./common/arch/arm64/configs/defconfig
 
           # SukiSU Ultra配置
           echo "CONFIG_KSU=y" >> "$CONFIG_FILE"
@@ -123,13 +124,14 @@ jobs:
           echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> "$CONFIG_FILE"
 
           # Remove check_defconfig
-          sed -i 's/check_defconfig//' ./common/build.config.gki
+          # sed -i 's/check_defconfig//' ./common/build.config.gki
       
       - name: Enable lto=thin For FAST
         run: |
           cd kernel/kernel_platform
 
-          DEFCONFIG=./common/arch/arm64/configs/gki_defconfig
+          # DEFCONFIG=./common/arch/arm64/configs/gki_defconfig
+          DEFCONFIG=./common/arch/arm64/configs/defconfig
 
           # 开启 CONFIG_LTO
           sed -i 's/^CONFIG_LTO_NONE=y/CONFIG_LTO=y/' "$DEFCONFIG"
@@ -156,7 +158,7 @@ jobs:
             RUSTC=../../prebuilts/rust/linux-x86/1.73.0b/bin/rustc \
             PAHOLE=../../prebuilts/kernel-build-tools/linux-x86/bin/pahole \
             LD=ld.lld HOSTLD=ld.lld KCFLAGS+=-O2"
-          make -j$(nproc --all) O=out V=1 $MAKE_ARGS gki_defconfig
+          make -j$(nproc --all) O=out V=1 $MAKE_ARGS defconfig
           make -j$(nproc --all) O=out V=1 $MAKE_ARGS Image
 
       - name: Show dist directory structure
